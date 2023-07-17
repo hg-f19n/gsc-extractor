@@ -1,0 +1,22 @@
+{
+  "name": "gsc-extractor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hg-f19n/gsc-extractor.git"
+  },
+  "author": "hg@f19n.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hg-f19n/gsc-extractor/issues"
+  },
+  "homepage": "https://github.com/hg-f19n/gsc-extractor#readme",
+  "dependencies": {
+    "puppeteer": "^20.8.2"
+  }
+}
