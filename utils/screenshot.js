@@ -1,15 +1,35 @@
-const path = require("path");
+const path = require('path');
 
-module.exports.screenshot = async (page, name) => {
+module.exports.screenshot = async (elementOrPage, name, padding = 40) => {
   try {
-    const screenshotPath = path.resolve(
-      __dirname,
-      "../screenshots",
-      `${name}.png`
-    );
-    await page.screenshot({ path: screenshotPath, fullPage: true });
+    const screenshotPath = path.resolve(__dirname, '../screenshots', `${name}.png`);
+
+    // Check if it's a Page object
+    if (elementOrPage.constructor.name === 'Page') {
+      await elementOrPage.screenshot({ path: screenshotPath, fullPage: true });
+    } 
+    // Check if it's an ElementHandle object
+    else if (elementOrPage.constructor.name === 'ElementHandle' || elementOrPage.constructor.name === 'CDPElementHandle') {
+      const box = await elementOrPage.boundingBox();
+
+      // adjust position and size with padding
+      const paddedBox = {
+        x: box.x - padding,
+        y: box.y - padding,
+        width: box.width + padding * 2,
+        height: box.height + padding * 2
+      };
+
+      await elementOrPage.screenshot({ 
+        path: screenshotPath,
+        clip: paddedBox 
+      });
+    } else {
+      throw new Error('Invalid argument, expected puppeteer.Page or puppeteer.ElementHandle');
+    }
+
     return screenshotPath;
   } catch (error) {
-    console.error(error);
+    console.error(`Failed to capture screenshot. ${error}`);
   }
 };
