@@ -1,10 +1,16 @@
+const fs = require('fs');
+const path = require('path');
 const puppeteer = require('puppeteer');
 const readline = require('readline');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { sleep } = require('./utils/wait');
+const { cleanUrl } = require('./utils/urls');
+const markdown = require('./utils/markdown');
+
+
 const crawlStats = require('./sections/crawl-stats');
 //const indexing = require('./sections/indexing');
-const { sleep } = require('./utils/wait');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -14,6 +20,15 @@ const rl = readline.createInterface({
 function ensureTrailingSlash(url) {
   return url.endsWith('/') ? url : `${url}/`;
 }
+
+const directories = ['screenshots', 'markdown'];
+
+directories.forEach(dir => {
+  const dirPath = path.join(__dirname, dir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath);
+  }
+});
 
 (async () => {
   const argv = yargs(hideBin(process.argv))
@@ -26,10 +41,12 @@ function ensureTrailingSlash(url) {
     .argv;
 
   const siteUrl = ensureTrailingSlash(argv.s);
+
+  const cleanSiteUrl = cleanUrl(siteUrl);
   
   const browser = await puppeteer.launch({
     headless: false,
-    defaultViewport: { width: 1400, height: 1000 },
+    defaultViewport: { width: 1400, height: 900 },
   });
 
   const page = await browser.newPage();
@@ -47,7 +64,9 @@ function ensureTrailingSlash(url) {
 
   await sleep(2000);
 
-  await crawlStats.run(page, siteUrl);
+  const markdownFilePath = await markdown.createNewMarkdownFile(cleanSiteUrl);
+
+  await crawlStats.run(page, siteUrl, markdownFilePath);
   //await indexing.run(page, siteUrl);
 
   await browser.close();

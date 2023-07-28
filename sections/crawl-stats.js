@@ -2,10 +2,17 @@ const puppeteer = require('puppeteer');
 const { screenshot } = require('../utils/screenshot');
 const markdown = require('../utils/markdown');
 const { sleep, waitForElementByXPath } = require('../utils/wait');
+const { cleanUrl } = require('../utils/urls');
 
-module.exports.run = async (page, siteUrl) => {
+module.exports.run = async (page, siteUrl, markdownFilePath) => {
   try {
     const url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
+    
+    await page.setViewport({
+      width: 1400,
+      height: 3000,
+    });
+
     try {
       await page.goto(url, { waitUntil: 'networkidle2' });
     } catch (error) {
@@ -51,10 +58,13 @@ module.exports.run = async (page, siteUrl) => {
     try {
       breakdown = await waitForElementByXPath(page, breakdownXPath);
       if (breakdown) {
-        const timestamp = new Date().toISOString();
-        const cleanSiteUrl = siteUrl.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const cleanSiteUrl = cleanUrl(siteUrl);
         const screenshotName = `${cleanSiteUrl}_crawl-requests-breakdown_${timestamp}`;
-        await screenshot(breakdown, screenshotName);
+        const screenshotPath = await screenshot(breakdown, screenshotName);
+        const headline = "Crawl Stats";
+        const pageUrl = page.url();
+        await markdown.generateMarkdownSlide(headline, screenshotPath, pageUrl, markdownFilePath);      
       } else {
         console.error(`Failed to find breakdown with XPath "${breakdownXPath}".`);
       }
@@ -65,5 +75,5 @@ module.exports.run = async (page, siteUrl) => {
   } catch (error) {
     console.error(`Error in crawlStats.run: ${error}`);
   }
-  //test slack github
+  
 };

@@ -1,8 +1,8 @@
 const path = require('path');
 
-module.exports.screenshot = async (elementOrPage, name, padding = 40) => {
+module.exports.screenshot = async (elementOrPage, screenshotName, padding = 40) => {
   try {
-    const screenshotPath = path.resolve(__dirname, '../screenshots', `${name}.png`);
+    const screenshotPath = path.resolve(__dirname, '../screenshots', `${screenshotName}.png`);
 
     // Check if it's a Page object
     if (elementOrPage.constructor.name === 'Page') {
@@ -33,3 +33,4 @@ module.exports.screenshot = async (elementOrPage, name, padding = 40) => {
     console.error(`Failed to capture screenshot. ${error}`);
   }
 };
+
