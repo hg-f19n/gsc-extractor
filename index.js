@@ -9,7 +9,6 @@ const { cleanUrl } = require('./utils/urls');
 const markdown = require('./utils/markdown');
 const { saveCookies, loadCookies } = require('./utils/cookies');
 const cookiesPath = path.join(__dirname, '..', 'cookies.json');
-const wtf = require('wtfnode');
 
 
 const crawlStats = require('./sections/crawl-stats');
@@ -88,7 +87,5 @@ directories.forEach(dir => {
   //await indexing.run(page, siteUrl);
 
   await browser.close();
-
-  wtf.dump();
 
 })();

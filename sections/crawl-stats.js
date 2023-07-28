@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 const { screenshot } = require('../utils/screenshot');
 const markdown = require('../utils/markdown');
 const { sleep, waitForElementByXPath } = require('../utils/wait');
@@ -6,22 +5,20 @@ const { cleanUrl } = require('../utils/urls');
 
 module.exports.run = async (page, siteUrl, markdownFilePath) => {
   try {
-    const url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
-    
     await page.setViewport({
       width: 1400,
       height: 3000,
     });
 
+    const url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
+    
     try {
-      console.log('Navigating to Google Search Console...');  // log
       await page.goto(url, { waitUntil: 'networkidle2' });
-      console.log('Navigated to Google Search Console...');  // log
     } catch (error) {
       console.error(`Failed to navigate to ${url}. ${error}`);
     }
 
-    await sleep(2000);
+    await sleep(1000);
 
     const dropdownsXPath = "//div[contains(., 'Rows per page')]/following-sibling::div[@role='listbox']";
     let dropdowns;
@@ -65,6 +62,36 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
         const screenshotName = `${cleanSiteUrl}_crawl-requests-breakdown_${timestamp}`;
         const screenshotPath = await screenshot(breakdown, screenshotName);
         const headline = "Crawl Stats";
+        const pageUrl = page.url();
+        await markdown.generateMarkdownSlide(headline, screenshotPath, pageUrl, markdownFilePath);      
+      } else {
+        console.error(`Failed to find breakdown with XPath "${breakdownXPath}".`);
+      }
+    } catch (error) {
+      console.error(`Failed to capture screenshot. ${error}`);
+    }
+
+    const url1 = `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=1`;
+
+    try {
+      await page.goto(url1, { waitUntil: 'networkidle2' });
+    } catch (error) {
+      console.error(`Failed to navigate to ${url1}. ${error}`);
+    }
+
+    await sleep(1000);
+
+    const screenShotXPath1 = "//c-wiz[@data-series-label-0='TOTAL_REQUESTS']";
+    let screenShotHolder1;
+    
+    try {
+      screenShotHolder1 = await waitForElementByXPath(page, screenShotXPath1);
+      if (screenShotHolder1) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const cleanSiteUrl = cleanUrl(siteUrl);
+        const screenshotName = `${cleanSiteUrl}_crawl-requests-googlebot-smartphone_${timestamp}`;
+        const screenshotPath = await screenshot(screenShotHolder1, screenshotName);
+        const headline = "Crawl Stats - Googlebot Smartphone";
         const pageUrl = page.url();
         await markdown.generateMarkdownSlide(headline, screenshotPath, pageUrl, markdownFilePath);      
       } else {
