@@ -7,15 +7,13 @@ const { hideBin } = require('yargs/helpers');
 const { sleep } = require('./utils/wait');
 const { cleanUrl } = require('./utils/urls');
 const markdown = require('./utils/markdown');
+const { saveCookies, loadCookies } = require('./utils/cookies');
+const cookiesPath = path.join(__dirname, '..', 'cookies.json');
+const wtf = require('wtfnode');
 
 
 const crawlStats = require('./sections/crawl-stats');
 //const indexing = require('./sections/indexing');
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
 
 function ensureTrailingSlash(url) {
   return url.endsWith('/') ? url : `${url}/`;
@@ -36,14 +34,14 @@ directories.forEach(dir => {
       alias: 'siteUrl',
       describe: 'Site URL for Google Search Console',
       type: 'string',
-      demandOption: true, 
+      demandOption: true,
     })
     .argv;
 
   const siteUrl = ensureTrailingSlash(argv.s);
 
   const cleanSiteUrl = cleanUrl(siteUrl);
-  
+
   const browser = await puppeteer.launch({
     headless: false,
     defaultViewport: { width: 1400, height: 900 },
@@ -51,18 +49,38 @@ directories.forEach(dir => {
 
   const page = await browser.newPage();
 
-  // navigate to Google's login page for manual login
-  await page.goto('https://accounts.google.com/signin');
+  await page.goto('https://accounts.google.com');
 
-  await new Promise((resolve, reject) => {
-    rl.question("Please login to your Google account in the browser then press Enter to continue...", function(answer){
-      resolve();
+  await loadCookies(page);
+
+  const cookiesLength = (await page.cookies()).length;
+  console.log('Cookies count:', cookiesLength);
+
+
+  if (!cookiesLength) {
+    console.log('No cookies found. Navigating to Google sign in page.');
+    await page.goto('https://accounts.google.com/signin');
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
     });
-  });
+  
+    await new Promise((resolve, reject) => {
+      rl.question("Please login to your Google account in the browser then press Enter to continue...", function (answer) {
+        resolve();
+      });
+    });
 
-  rl.close();
+    rl.close();
 
-  await sleep(2000);
+    await saveCookies(page);
+
+    await sleep(2000);
+
+  } else {
+    console.log('Cookies loaded successfully.');
+  }
 
   const markdownFilePath = await markdown.createNewMarkdownFile(cleanSiteUrl);
 
@@ -70,4 +88,7 @@ directories.forEach(dir => {
   //await indexing.run(page, siteUrl);
 
   await browser.close();
+
+  wtf.dump();
+
 })();

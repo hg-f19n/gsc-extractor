@@ -18,6 +18,7 @@
   "homepage": "https://github.com/hg-f19n/gsc-extractor#readme",
   "dependencies": {
     "puppeteer": "^20.8.2",
+    "wtfnode": "^0.9.1",
     "yargs": "^17.7.2"
   }
 }

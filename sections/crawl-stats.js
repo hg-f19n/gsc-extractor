@@ -14,7 +14,9 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
     });
 
     try {
+      console.log('Navigating to Google Search Console...');  // log
       await page.goto(url, { waitUntil: 'networkidle2' });
+      console.log('Navigated to Google Search Console...');  // log
     } catch (error) {
       console.error(`Failed to navigate to ${url}. ${error}`);
     }
