@@ -10,9 +10,8 @@ const markdown = require('./utils/markdown');
 const { saveCookies, loadCookies } = require('./utils/cookies');
 const cookiesPath = path.join(__dirname, '..', 'cookies.json');
 
-
 const crawlStats = require('./sections/crawl-stats');
-//const indexing = require('./sections/indexing');
+const links = require('./sections/links');
 
 function ensureTrailingSlash(url) {
   return url.endsWith('/') ? url : `${url}/`;
@@ -83,8 +82,8 @@ directories.forEach(dir => {
 
   const markdownFilePath = await markdown.createNewMarkdownFile(cleanSiteUrl);
 
-  await crawlStats.run(page, siteUrl, markdownFilePath);
-  //await indexing.run(page, siteUrl);
+  //await crawlStats.run(page, siteUrl, markdownFilePath);
+  await links.run(page, siteUrl, markdownFilePath);
 
   await browser.close();
 

@@ -1,6 +1,6 @@
 const path = require('path');
 
-module.exports.screenshot = async (elementOrPage, screenshotName, padding = 20) => {
+module.exports.screenshot = async (elementOrPage, screenshotName, padding = 20, maxHeight = 1200) => {
   try {
     const screenshotPath = path.resolve(__dirname, '../screenshots', `${screenshotName}.png`);
 
@@ -17,7 +17,7 @@ module.exports.screenshot = async (elementOrPage, screenshotName, padding = 20) 
         x: box.x - padding,
         y: box.y - padding,
         width: box.width + padding * 2,
-        height: box.height + padding * 2
+        height: Math.min(box.height + padding * 2, maxHeight) // limit height to maxHeight
       };
 
       await elementOrPage.screenshot({ 
@@ -33,4 +33,3 @@ module.exports.screenshot = async (elementOrPage, screenshotName, padding = 20) 
     console.error(`Failed to capture screenshot. ${error}`);
   }
 };
-

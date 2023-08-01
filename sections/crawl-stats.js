@@ -16,10 +16,8 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
     let url = `https://search.google.com/search-console/settings?resource_id=${encodeURIComponent(siteUrl)}`;
     await navigateToUrl(page, url);
 
-    //li[span[contains(text(), 'Text1')]]
-
     let screenshotXPath = "//div/div[div[contains(text(), 'Indexing crawler')]]";
-    let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
+    let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-indexing-crawler');
     await markdown.generateMarkdownSlide('Crawl Stats - Indexing Crawler', result.screenshotPath, result.pageUrl, markdownFilePath);
 
     /**
@@ -63,7 +61,7 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
     // END: Perform interactions
 
     screenshotXPath = "//div[contains(., 'Crawl requests breakdown')]/following-sibling::div";
-    result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
+    result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-overview');
     await markdown.generateMarkdownSlide('Crawl Stats - Overview', result.screenshotPath, result.pageUrl, markdownFilePath);
 
     /**
