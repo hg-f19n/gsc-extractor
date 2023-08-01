@@ -1,35 +1,6 @@
-const { screenshot } = require('../utils/screenshot');
 const markdown = require('../utils/markdown');
-const { sleep, waitForElementByXPath } = require('../utils/wait');
-const { cleanUrl } = require('../utils/urls');
-
-async function navigateToUrl(page, url) {
-  try {
-    await page.goto(url, { waitUntil: 'networkidle2' });
-    await sleep(1000);
-  } catch (error) {
-    console.error(`Failed to navigate to ${url}. ${error}`);
-  }
-}
-
-async function captureScreenshot(page, siteUrl, screenshotXPath, screenshotNamePrefix) {
-  let screenshotHolder, screenshotPath, pageUrl;
-  try {
-    screenshotHolder = await waitForElementByXPath(page, screenshotXPath);
-    if (screenshotHolder) {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const cleanSiteUrl = cleanUrl(siteUrl);
-      const screenshotName = `${cleanSiteUrl}_${screenshotNamePrefix}_${timestamp}`;
-      screenshotPath = await screenshot(screenshotHolder, screenshotName);
-      pageUrl = page.url();
-    } else {
-      console.error(`Failed to find element with XPath "${screenshotXPath}".`);
-    }
-  } catch (error) {
-    console.error(`Failed to capture screenshot. ${error}`);
-  }
-  return { screenshotPath, pageUrl };
-}
+const { sleep } = require('../utils/wait');
+const { navigateToUrl, captureScreenshot, waitAndClickByXPath } = require('../utils/navigation');
 
 module.exports.run = async (page, siteUrl, markdownFilePath) => {
   try {
@@ -38,13 +9,26 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
       height: 3000,
     });
 
-    /* =============================
-       Crawl Stats Overview
-       ============================= */
-    let url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
+    /**
+     * Crawl Stats - Indexing
+     */
+
+    let url = `https://search.google.com/search-console/settings?resource_id=${encodeURIComponent(siteUrl)}`;
     await navigateToUrl(page, url);
 
-    // Perform dropdown interactions
+    //li[span[contains(text(), 'Text1')]]
+
+    let screenshotXPath = "//div/div[div[contains(text(), 'Indexing crawler')]]";
+    let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
+    await markdown.generateMarkdownSlide('Crawl Stats - Indexing Crawler', result.screenshotPath, result.pageUrl, markdownFilePath);
+
+    /**
+     * Crawl Stats - Overview
+     */
+    url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
+    await navigateToUrl(page, url);
+
+    // Perform interactions
     const dropdownsXPath = "//div[contains(., 'Rows per page')]/following-sibling::div[@role='listbox']";
     let dropdowns;
 
@@ -76,14 +60,15 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
         console.error(`Failed to click dropdown. ${error}`);
       }
     }
+    // END: Perform interactions
 
-    let screenshotXPath = "//div[contains(., 'Crawl requests breakdown')]/following-sibling::div";
-    let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
+    screenshotXPath = "//div[contains(., 'Crawl requests breakdown')]/following-sibling::div";
+    result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
     await markdown.generateMarkdownSlide('Crawl Stats - Overview', result.screenshotPath, result.pageUrl, markdownFilePath);
 
-    /* =============================
-       Crawl Stats by Bot Type
-       ============================= */
+    /**
+     * Crawl Stats - by Bot Type
+     */
     let urls = [
       `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=1`,
       `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=2`
@@ -101,27 +86,82 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
 
     await markdown.generateMarkdownSlideWithTwoImages('Crawl Stats - Googlebot Smartphone vs Desktop', 'Googlebot Smartphone', 'Googlebot Desktop', screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
 
-    /* =============================
-       Crawl Stats by File Type
-       ============================= */
-    let urls = [
-      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=1`,
-      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=2`
+    /**
+     * Crawl Stats - by File Type - HTML & Images
+     */
+
+    urls = [
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&file_type=1`,
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&file_type=2`
     ];
 
-    let screenshotPaths = [];
-    let pageUrls = [];
+    screenshotPaths = [];
+    pageUrls = [];
     for (let url of urls) {
       await navigateToUrl(page, url);
+
+      // Perform Interactions
+
+      // Click on 'Average response time' button
+      await waitAndClickByXPath(page, "//div[contains(., 'Average response time') and @role='button']");
+
+      // Click on 'Total crawl requests' button
+      await waitAndClickByXPath(page, "//div[contains(., 'Total crawl requests') and @role='button']");
+
       screenshotXPath = "//c-wiz[@data-series-label-0='TOTAL_REQUESTS']";
-      result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-by-bot');
+      result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-css-js-avg-response-time');
       screenshotPaths.push(result.screenshotPath);
       pageUrls.push(result.pageUrl);
     }
 
-    await markdown.generateMarkdownSlideWithTwoImages('Crawl Stats - Googlebot Smartphone vs Desktop', 'Googlebot Smartphone', 'Googlebot Desktop', screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
+    await markdown.generateMarkdownSlideWithTwoImages('Crawl Stats - Average Response Time - HTML & Images', 'HTML', 'Images', screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
+
+    /**
+     * Crawl Stats - by File Type - CSS & JS
+     */
+    urls = [
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&file_type=5`,
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&file_type=4`
+    ];
+
+    screenshotPaths = [];
+    pageUrls = [];
+    for (let url of urls) {
+      await navigateToUrl(page, url);
+
+      // Perform Interactions
+
+      // Click on 'Average response time' button
+      await waitAndClickByXPath(page, "//div[contains(., 'Average response time') and @role='button']");
+
+      // Click on 'Total crawl requests' button
+      await waitAndClickByXPath(page, "//div[contains(., 'Total crawl requests') and @role='button']");
+
+      screenshotXPath = "//c-wiz[@data-series-label-0='TOTAL_REQUESTS']";
+      result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-css-js-avg-response-time');
+      screenshotPaths.push(result.screenshotPath);
+      pageUrls.push(result.pageUrl);
+    }
+
+    await markdown.generateMarkdownSlideWithTwoImages('Crawl Stats - Average Response Time - CSS & JS', 'CSS', 'JS', screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
+
 
   } catch (error) {
     console.error(`Error in crawlStats.run: ${error}`);
   }
 };
+
+
+
+/**
+ * Heading
+ */
+
+// let url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
+// await navigateToUrl(page, url);
+
+// Perform interactions
+
+// let screenshotXPath = "//div[contains(., 'Crawl requests breakdown')]/following-sibling::div";
+// let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
+// await markdown.generateMarkdownSlide('Crawl Stats - Overview', result.screenshotPath, result.pageUrl, markdownFilePath);

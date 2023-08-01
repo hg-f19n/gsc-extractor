@@ -25,9 +25,11 @@ module.exports.generateMarkdownSlide = async (headline, screenshotPath, pageUrl,
     const markdownSlide = 
     
 `
+<!-- _class: default -->
+
 # ${headline}
 
-![w:auto h:780](${relativeScreenshotPath})
+![w:auto h:auto](${relativeScreenshotPath})
 [${pageUrl}](${pageUrl})
 
 ---
@@ -50,6 +52,8 @@ module.exports.generateMarkdownSlideWithTwoImages = async (headline, subheadline
     const markdownSlide = 
     
 `
+<!-- _class: split -->
+
 # ${headline}
 
 <div style="display: flex; justify-content: space-between;">

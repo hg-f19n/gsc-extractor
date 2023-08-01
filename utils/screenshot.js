@@ -1,6 +1,6 @@
 const path = require('path');
 
-module.exports.screenshot = async (elementOrPage, screenshotName, padding = 40) => {
+module.exports.screenshot = async (elementOrPage, screenshotName, padding = 20) => {
   try {
     const screenshotPath = path.resolve(__dirname, '../screenshots', `${screenshotName}.png`);
 
