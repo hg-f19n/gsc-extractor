@@ -3,6 +3,34 @@ const markdown = require('../utils/markdown');
 const { sleep, waitForElementByXPath } = require('../utils/wait');
 const { cleanUrl } = require('../utils/urls');
 
+async function navigateToUrl(page, url) {
+  try {
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    await sleep(1000);
+  } catch (error) {
+    console.error(`Failed to navigate to ${url}. ${error}`);
+  }
+}
+
+async function captureScreenshot(page, siteUrl, screenshotXPath, screenshotNamePrefix) {
+  let screenshotHolder, screenshotPath, pageUrl;
+  try {
+    screenshotHolder = await waitForElementByXPath(page, screenshotXPath);
+    if (screenshotHolder) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const cleanSiteUrl = cleanUrl(siteUrl);
+      const screenshotName = `${cleanSiteUrl}_${screenshotNamePrefix}_${timestamp}`;
+      screenshotPath = await screenshot(screenshotHolder, screenshotName);
+      pageUrl = page.url();
+    } else {
+      console.error(`Failed to find element with XPath "${screenshotXPath}".`);
+    }
+  } catch (error) {
+    console.error(`Failed to capture screenshot. ${error}`);
+  }
+  return { screenshotPath, pageUrl };
+}
+
 module.exports.run = async (page, siteUrl, markdownFilePath) => {
   try {
     await page.setViewport({
@@ -10,16 +38,13 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
       height: 3000,
     });
 
-    const url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
-    
-    try {
-      await page.goto(url, { waitUntil: 'networkidle2' });
-    } catch (error) {
-      console.error(`Failed to navigate to ${url}. ${error}`);
-    }
+    /* =============================
+       Crawl Stats Overview
+       ============================= */
+    let url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
+    await navigateToUrl(page, url);
 
-    await sleep(1000);
-
+    // Perform dropdown interactions
     const dropdownsXPath = "//div[contains(., 'Rows per page')]/following-sibling::div[@role='listbox']";
     let dropdowns;
 
@@ -52,57 +77,51 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
       }
     }
 
-    const breakdownXPath = "//div[contains(., 'Crawl requests breakdown')]/following-sibling::div";
-    let breakdown;
-    try {
-      breakdown = await waitForElementByXPath(page, breakdownXPath);
-      if (breakdown) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const cleanSiteUrl = cleanUrl(siteUrl);
-        const screenshotName = `${cleanSiteUrl}_crawl-requests-breakdown_${timestamp}`;
-        const screenshotPath = await screenshot(breakdown, screenshotName);
-        const headline = "Crawl Stats";
-        const pageUrl = page.url();
-        await markdown.generateMarkdownSlide(headline, screenshotPath, pageUrl, markdownFilePath);      
-      } else {
-        console.error(`Failed to find breakdown with XPath "${breakdownXPath}".`);
-      }
-    } catch (error) {
-      console.error(`Failed to capture screenshot. ${error}`);
+    let screenshotXPath = "//div[contains(., 'Crawl requests breakdown')]/following-sibling::div";
+    let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
+    await markdown.generateMarkdownSlide('Crawl Stats - Overview', result.screenshotPath, result.pageUrl, markdownFilePath);
+
+    /* =============================
+       Crawl Stats by Bot Type
+       ============================= */
+    let urls = [
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=1`,
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=2`
+    ];
+
+    let screenshotPaths = [];
+    let pageUrls = [];
+    for (let url of urls) {
+      await navigateToUrl(page, url);
+      screenshotXPath = "//c-wiz[@data-series-label-0='TOTAL_REQUESTS']";
+      result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-by-bot');
+      screenshotPaths.push(result.screenshotPath);
+      pageUrls.push(result.pageUrl);
     }
 
-    const url1 = `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=1`;
+    await markdown.generateMarkdownSlideWithTwoImages('Crawl Stats - Googlebot Smartphone vs Desktop', 'Googlebot Smartphone', 'Googlebot Desktop', screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
 
-    try {
-      await page.goto(url1, { waitUntil: 'networkidle2' });
-    } catch (error) {
-      console.error(`Failed to navigate to ${url1}. ${error}`);
+    /* =============================
+       Crawl Stats by File Type
+       ============================= */
+    let urls = [
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=1`,
+      `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=2`
+    ];
+
+    let screenshotPaths = [];
+    let pageUrls = [];
+    for (let url of urls) {
+      await navigateToUrl(page, url);
+      screenshotXPath = "//c-wiz[@data-series-label-0='TOTAL_REQUESTS']";
+      result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-by-bot');
+      screenshotPaths.push(result.screenshotPath);
+      pageUrls.push(result.pageUrl);
     }
 
-    await sleep(1000);
-
-    const screenShotXPath1 = "//c-wiz[@data-series-label-0='TOTAL_REQUESTS']";
-    let screenShotHolder1;
-    
-    try {
-      screenShotHolder1 = await waitForElementByXPath(page, screenShotXPath1);
-      if (screenShotHolder1) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const cleanSiteUrl = cleanUrl(siteUrl);
-        const screenshotName = `${cleanSiteUrl}_crawl-requests-googlebot-smartphone_${timestamp}`;
-        const screenshotPath = await screenshot(screenShotHolder1, screenshotName);
-        const headline = "Crawl Stats - Googlebot Smartphone";
-        const pageUrl = page.url();
-        await markdown.generateMarkdownSlide(headline, screenshotPath, pageUrl, markdownFilePath);      
-      } else {
-        console.error(`Failed to find breakdown with XPath "${breakdownXPath}".`);
-      }
-    } catch (error) {
-      console.error(`Failed to capture screenshot. ${error}`);
-    }
+    await markdown.generateMarkdownSlideWithTwoImages('Crawl Stats - Googlebot Smartphone vs Desktop', 'Googlebot Smartphone', 'Googlebot Desktop', screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
 
   } catch (error) {
     console.error(`Error in crawlStats.run: ${error}`);
   }
-  
 };
