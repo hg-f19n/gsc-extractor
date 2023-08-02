@@ -57,12 +57,12 @@ module.exports.generateMarkdownSlideWithTwoImages = async (headline, subheadline
 # ${headline}
 
 <div style="display: flex; justify-content: space-between;">
-    <div style="width: 47%;">
+    <div style="width: 49%;">
       <h2>${subheadline1}</h2>
       <img src="${relativeScreenshotPath1}"/>
       <a href="${pageUrl1}">${pageUrl1}</a>
     </div>
-    <div style="width: 47%;">
+    <div style="width: 49%;">
       <h2>${subheadline2}</h2>
       <img src="${relativeScreenshotPath2}"/>
       <a href="${pageUrl2}">${pageUrl2}</a>

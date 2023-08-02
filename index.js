@@ -12,6 +12,12 @@ const cookiesPath = path.join(__dirname, '..', 'cookies.json');
 
 const crawlStats = require('./sections/crawl-stats');
 const links = require('./sections/links');
+const securityActions = require('./sections/security-actions');
+const enhancements = require('./sections/enhancements');
+const shopping = require('./sections/shopping');
+const experience = require('./sections/experience');
+const indexing = require('./sections/indexing');
+const performance = require('./sections/performance');
 
 function ensureTrailingSlash(url) {
   return url.endsWith('/') ? url : `${url}/`;
@@ -82,7 +88,13 @@ directories.forEach(dir => {
 
   const markdownFilePath = await markdown.createNewMarkdownFile(cleanSiteUrl);
 
-  //await crawlStats.run(page, siteUrl, markdownFilePath);
+  await crawlStats.run(page, siteUrl, markdownFilePath);
+  await performance.run(page, siteUrl, markdownFilePath);
+  await indexing.run(page, siteUrl, markdownFilePath);
+  await experience.run(page, siteUrl, markdownFilePath);
+  await enhancements.run(page, siteUrl, markdownFilePath);
+  await shopping.run(page, siteUrl, markdownFilePath);
+  await securityActions.run(page, siteUrl, markdownFilePath);
   await links.run(page, siteUrl, markdownFilePath);
 
   await browser.close();

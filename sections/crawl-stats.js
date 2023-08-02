@@ -9,15 +9,22 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
       height: 3000,
     });
 
+    let url;
+    let urls;
+    let screenshotXPath;
+    let result;
+    let pageUrls;
+    let screenshotPaths;
+
     /**
      * Crawl Stats - Indexing
      */
 
-    let url = `https://search.google.com/search-console/settings?resource_id=${encodeURIComponent(siteUrl)}`;
+    url = `https://search.google.com/search-console/settings?resource_id=${encodeURIComponent(siteUrl)}`;
     await navigateToUrl(page, url);
 
-    let screenshotXPath = "//div/div[div[contains(text(), 'Indexing crawler')]]";
-    let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-indexing-crawler');
+    screenshotXPath = "//div/div[div[contains(text(), 'Indexing crawler')]]";
+    result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-indexing-crawler');
     await markdown.generateMarkdownSlide('Crawl Stats - Indexing Crawler', result.screenshotPath, result.pageUrl, markdownFilePath);
 
     /**
@@ -67,13 +74,13 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
     /**
      * Crawl Stats - by Bot Type
      */
-    let urls = [
+    urls = [
       `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=1`,
       `https://search.google.com/search-console/settings/crawl-stats/drilldown?resource_id=${encodeURIComponent(siteUrl)}&googlebot_type=2`
     ];
 
-    let screenshotPaths = [];
-    let pageUrls = [];
+    screenshotPaths = [];
+    pageUrls = [];
     for (let url of urls) {
       await navigateToUrl(page, url);
       screenshotXPath = "//c-wiz[@data-series-label-0='TOTAL_REQUESTS']";
