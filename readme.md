@@ -38,7 +38,7 @@ This script is a Node.js application that uses Puppeteer to automate browsing th
 
 You need to specify the site URL you want to crawl as a command-line argument using `-s` or `--siteUrl`. For example:
 
-    ```
+    ```bash
     node index.js -s https://example.com/
     ```
 
