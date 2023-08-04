@@ -40,7 +40,7 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
 
     screenshotXPaths = [
       "//div[@title='Total clicks']/ancestor::c-wiz[@data-overridden-initially-visible-count]",
-      "//div[contains(text(), 'Queries')]/ancestor::div[@jscontroller and @jsaction and @jsshadow and @jsname]"
+      "//div[contains(text(), 'Pages')]/ancestor::div[@jscontroller and @jsaction and @jsshadow and @jsname]"
     ];
 
     screenshotPaths = [];
@@ -65,7 +65,7 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
 
     screenshotXPaths = [
       "//div[@title='Total clicks']/ancestor::c-wiz[@data-overridden-initially-visible-count]",
-      "//div[contains(text(), 'Queries')]/ancestor::div[@jscontroller and @jsaction and @jsshadow and @jsname]"
+      "//div[contains(text(), 'Pages')]/ancestor::div[@jscontroller and @jsaction and @jsshadow and @jsname]"
     ];
 
     screenshotPaths = [];

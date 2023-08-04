@@ -1,5 +1,5 @@
 {
-  "name": "gsc-extractor",
+  "name": "gsc-reporter",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hg-f19n/gsc-extractor.git"
+    "url": "git+https://github.com/hg-f19n/gsc-reporter.git"
   },
   "author": "hg@f19n.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hg-f19n/gsc-extractor/issues"
+    "url": "https://github.com/hg-f19n/gsc-reporter/issues"
   },
-  "homepage": "https://github.com/hg-f19n/gsc-extractor#readme",
+  "homepage": "https://github.com/hg-f19n/gsc-reporter#readme",
   "dependencies": {
     "puppeteer": "^20.8.2",
     "wtfnode": "^0.9.1",
