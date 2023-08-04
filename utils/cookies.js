@@ -19,7 +19,8 @@ async function loadCookies(page, path = cookiesPath) {
     console.log('Loaded cookies.');
   } catch (error) {
     if (error.code === 'ENOENT') {
-      console.log('No cookies file found, proceeding without preloaded cookies.');
+      console.log('No cookies file found.');
+      throw new Error('No cookies file found.');
     } else {
       throw error;
     }

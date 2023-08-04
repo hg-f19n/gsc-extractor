@@ -145,6 +145,6 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
 
 
   } catch (error) {
-    console.error(`Error in template.run: ${error}`);
+    console.error(`Error in performance.run: ${error}`);
   }
 };

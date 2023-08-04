@@ -18,6 +18,8 @@ const shopping = require('./sections/shopping');
 const experience = require('./sections/experience');
 const indexing = require('./sections/indexing');
 const performance = require('./sections/performance');
+const discover = require('./sections/discover');
+const news = require('./sections/news');
 
 function ensureTrailingSlash(url) {
   return url.endsWith('/') ? url : `${url}/`;
@@ -55,48 +57,50 @@ directories.forEach(dir => {
 
   await page.goto('https://accounts.google.com');
 
-  await loadCookies(page);
-
-  const cookiesLength = (await page.cookies()).length;
-  console.log('Cookies count:', cookiesLength);
-
-
-  if (!cookiesLength) {
-    console.log('No cookies found. Navigating to Google sign in page.');
-    await page.goto('https://accounts.google.com/signin');
-
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
+  try {
+    await loadCookies(page);
+  } catch (error) {
+    if (error.message === 'No cookies file found.') {
+      console.log('Navigating to Google sign in page.');
+      await page.goto('https://accounts.google.com/signin');
   
-    await new Promise((resolve, reject) => {
-      rl.question("Please login to your Google account in the browser then press Enter to continue...", function (answer) {
-        resolve();
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
       });
-    });
-
-    rl.close();
-
-    await saveCookies(page);
-
-    await sleep(2000);
-
-  } else {
-    console.log('Cookies loaded successfully.');
+  
+      await new Promise((resolve, reject) => {
+        rl.question("Please login to your Google account in the browser then press Enter to continue...", function (answer) {
+          resolve();
+        });
+      });
+  
+      rl.close();
+  
+      await saveCookies(page);
+  
+      await sleep(2000);
+    } else {
+      console.error(`Error loading cookies: ${error}`);
+      process.exit(1); // or whatever your error handling strategy is
+    }
   }
 
   const markdownFilePath = await markdown.createNewMarkdownFile(cleanSiteUrl);
 
+  await news.run(page, siteUrl, markdownFilePath);
+  await discover.run(page, siteUrl, markdownFilePath);
   await crawlStats.run(page, siteUrl, markdownFilePath);
-  await performance.run(page, siteUrl, markdownFilePath);
+  /* await performance.run(page, siteUrl, markdownFilePath);
   await indexing.run(page, siteUrl, markdownFilePath);
   await experience.run(page, siteUrl, markdownFilePath);
   await enhancements.run(page, siteUrl, markdownFilePath);
   await shopping.run(page, siteUrl, markdownFilePath);
   await securityActions.run(page, siteUrl, markdownFilePath);
-  await links.run(page, siteUrl, markdownFilePath);
+  await links.run(page, siteUrl, markdownFilePath); */
 
   await browser.close();
 
 })();
+
+
