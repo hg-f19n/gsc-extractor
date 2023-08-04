@@ -36,10 +36,11 @@ This script is a Node.js application that uses Puppeteer to automate browsing th
 
 ## Usage
 
+You need to specify the site URL you want to crawl as a command-line argument using `-s` or `--siteUrl`. For example:
 
-    ```
-    node index.js -s https://example.com/
-    ```
+   ```
+   node index.js -s https://example.com/
+   ```
 
 ### Initial Google Account Login
 
@@ -73,7 +74,7 @@ Additionally, the script takes screenshots of the pages it visits and saves them
 After the script has finished, you can generate slides from the generated Markdown file using Marp CLI. Run the following command:
 
 ```
-npx @marp-team/marp-cli@latest markdown/<your_markdown_file> --theme-set markdown/theme.css --allow-local-files --html
-```
 
-Replace `<your_markdown_file>` with the actual path to your Markdown file.
+npx @marp-team/marp-cli@latest markdown/<your_markdown_file> --theme-set markdown/theme.css --allow-local-files --html
+
+```
