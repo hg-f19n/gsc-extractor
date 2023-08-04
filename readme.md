@@ -12,13 +12,13 @@ This script is a Node.js application that uses Puppeteer to automate browsing th
 1. Clone the repository:
 
     ```
-    git clone https://github.com/<your_username>/gsc-crawler.git
+    git clone https://github.com/hg-f19n/gsc-reporter.git
     ```
 
 2. Navigate into the cloned repository:
 
     ```
-    cd gsc-crawler
+    cd gsc-reporter
     ```
 
 3. Install dependencies:
