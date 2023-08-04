@@ -1,4 +1,4 @@
-# Google Search Console Crawler
+# Google Search Console Reporter
 
 This script is a Node.js application that uses Puppeteer to automate browsing the Google Search Console (GSC) and collects data from various sections into a Markdown file. It also takes screenshots of the pages it visits.
 
