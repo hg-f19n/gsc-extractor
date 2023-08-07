@@ -73,10 +73,20 @@ Additionally, the script takes screenshots of the pages it visits and saves them
 
 ## Generate Slides
 
-After the script has finished, you can generate slides from the generated Markdown file using Marp CLI. Run the following command:
+After the script has finished, it will provide the command to generate slides from the generated Markdown file using Marp CLI in the console output.
 
-```
+You can use these commands to generate either HTML or PDF slides:
 
-npx @marp-team/marp-cli@latest markdown/<your_markdown_file> --theme-set markdown/theme.css --allow-local-files --html
+- For HTML slides:
 
-```
+    ```bash
+    npx @marp-team/marp-cli@latest markdown/<your_markdown_file> --theme-set markdown/theme.css --allow-local-files --html
+    ```
+
+- For PDF slides:
+
+    ```bash
+    npx @marp-team/marp-cli@latest markdown/<your_markdown_file> --theme-set markdown/theme.css --allow-local-files --pdf
+    ```
+
+Replace `<your_markdown_file>` with the name of the Markdown file you want to convert into slides. This filename will be displayed in the console output once the crawling script has finished its execution.
