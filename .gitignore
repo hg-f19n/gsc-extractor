@@ -2,6 +2,7 @@ screenshots
 markdown
 _temp.txt
 cookies.json
+.DS_Store
 
 # Logs
 logs

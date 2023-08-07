@@ -36,11 +36,13 @@ This script is a Node.js application that uses Puppeteer to automate browsing th
 
 ## Usage
 
-You need to specify the site URL you want to crawl as a command-line argument using `-s` or `--siteUrl`. For example:
+You need to specify the site URL you want to crawl as a command-line argument using `-s` or `--siteUrl`. Optionally, you can specify a brand name using `-b` or `--brandName`. If you don't specify a brand, it gets extracted out of the siteUrl For example:
 
    ```
-   node index.js -s https://example.com/
+   node index.js -s https://example.com/ -b "Example Brand"
    ```
+
+
 
 ### Initial Google Account Login
 

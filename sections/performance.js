@@ -2,7 +2,7 @@ const markdown = require('../utils/markdown');
 const { sleep } = require('../utils/wait');
 const { navigateToUrl, captureScreenshot, waitAndClickByXPath } = require('../utils/navigation');
 
-module.exports.run = async (page, siteUrl, markdownFilePath) => {
+module.exports.run = async (page, siteUrl, markdownFilePath, brandName = null) => {
   try {
     await page.setViewport({
       width: 1400,
@@ -18,9 +18,7 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
     let screenshotPaths;
 
     let brandUrl = new URL(siteUrl);
-    let brand = brandUrl.hostname.split('.').slice(1, -1).join('.');
-    console.log(brand); // prints: example
-    
+    let brand = brandName || brandUrl.hostname.split('.').slice(1, -1).join('.');
 
     /**
      * Performance - Clicks - Last 28 Days
@@ -91,7 +89,7 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
       pageUrls.push(result.pageUrl);
     }
 
-    await markdown.generateMarkdownSlideWithTwoImages('Performance - Clicks - Branded vs Unbranded', 'Branded', 'Unbranded', screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
+    await markdown.generateMarkdownSlideWithTwoImages('Performance - Clicks - Branded vs Unbranded', `Branded - Includes "${brand}"`, `Unbranded - Does not include "${brand}"`, screenshotPaths[0], screenshotPaths[1], pageUrls[0], pageUrls[1], markdownFilePath);
 
     /**
      * Performance - Clicks - Branded
@@ -116,7 +114,7 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
       }
     }
 
-    await markdown.generateMarkdownSlideWithTwoImages('Performance - Clicks - Branded', '', '', screenshotPaths[0], screenshotPaths[1], page.url(), page.url(), markdownFilePath);
+    await markdown.generateMarkdownSlideWithTwoImages(`Performance - Clicks - Branded - Includes "${brand}"`, '', '', screenshotPaths[0], screenshotPaths[1], page.url(), page.url(), markdownFilePath);
 
     /**
      * Performance - Clicks - Unbranded
@@ -141,7 +139,7 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
       }
     }
 
-    await markdown.generateMarkdownSlideWithTwoImages('Performance - Clicks - Unbranded', '', '', screenshotPaths[0], screenshotPaths[1], page.url(), page.url(), markdownFilePath);
+    await markdown.generateMarkdownSlideWithTwoImages(`Performance - Clicks - Unbranded - Does not include "${brand}"`, '', '', screenshotPaths[0], screenshotPaths[1], page.url(), page.url(), markdownFilePath);
 
 
   } catch (error) {

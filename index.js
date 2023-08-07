@@ -42,9 +42,16 @@ directories.forEach(dir => {
       type: 'string',
       demandOption: true,
     })
+    .option('b', {
+      alias: 'brandName',
+      describe: 'Brand name',
+      type: 'string',
+      demandOption: false,
+    })
     .argv;
 
   const siteUrl = ensureTrailingSlash(argv.s);
+  const brandName = argv.b || "";
 
   const cleanSiteUrl = cleanUrl(siteUrl);
 
@@ -88,7 +95,7 @@ directories.forEach(dir => {
 
   const markdownFilePath = await markdown.createNewMarkdownFile(cleanSiteUrl);
 
-  await performance.run(page, siteUrl, markdownFilePath);
+  await performance.run(page, siteUrl, markdownFilePath, brandName);
   await news.run(page, siteUrl, markdownFilePath);
   await discover.run(page, siteUrl, markdownFilePath);
   await crawlStats.run(page, siteUrl, markdownFilePath);
@@ -100,5 +107,12 @@ directories.forEach(dir => {
   await links.run(page, siteUrl, markdownFilePath);
 
   await browser.close();
+
+  let markdownFileName = path.basename(markdownFilePath);
+
+  console.log("\n---- COMMANDS TO GENERATE SLIDES ----");
+  console.log(`HTML: npx @marp-team/marp-cli@latest markdown/${markdownFileName} --theme-set markdown/theme.css --allow-local-files --html`);
+  console.log(`PDF: npx @marp-team/marp-cli@latest markdown/${markdownFileName} --theme-set markdown/theme.css --allow-local-files --html --pdf`);
+
 
 })();
