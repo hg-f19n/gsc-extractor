@@ -156,17 +156,3 @@ module.exports.run = async (page, siteUrl, markdownFilePath) => {
   }
 };
 
-
-
-/**
- * Heading
- */
-
-// let url = `https://search.google.com/search-console/settings/crawl-stats?resource_id=${encodeURIComponent(siteUrl)}`;
-// await navigateToUrl(page, url);
-
-// Perform interactions
-
-// let screenshotXPath = "//div[contains(., 'Crawl requests breakdown')]/following-sibling::div";
-// let result = await captureScreenshot(page, siteUrl, screenshotXPath, 'crawl-requests-breakdown');
-// await markdown.generateMarkdownSlide('Crawl Stats - Overview', result.screenshotPath, result.pageUrl, markdownFilePath);
