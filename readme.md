@@ -68,13 +68,13 @@ The results of each test are saved in the Markdown format. These Markdown files 
 - **Markdown Outputs**: These are saved in the `./markdown` directory.
 - **HTML and PDF Outputs**: After the Markdown results are generated, they're converted into HTML and PDF formats and saved in the `./results` directory.
 
-### Conversion:
+### Conversion
 
 The conversion of Markdown files to HTML and PDF formats is powered by Marp CLI. Our tool employs the `convertMarkdown` utility, which can be found in `./utils/conversion`, to leverage Marp's capabilities and transform Markdown documents seamlessly.
 
 ### Manual Conversion
 
-To manually convert a specific Markdown file to HTML and PDF, use the `--convert` or `-c` option followed by either "latest" (to convert the most recently modified .md file) or the path to a specific Markdown file:
+To manually convert a Markdown file to HTML and PDF, use the `--convert` or `-c` option followed by either "latest" (to convert the most recently modified .md file) or the path to a specific Markdown file:
 
 
 Convert the latest Markdown file:
