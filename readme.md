@@ -6,7 +6,6 @@ This script is a Node.js application that uses Puppeteer to automate browsing th
 
 - Node.js (v16.0.0 or later)
 - Google Chrome (or Chromium)
-- Marp CLI (for generating slides)
 
 ## Installation
 
@@ -28,11 +27,6 @@ This script is a Node.js application that uses Puppeteer to automate browsing th
    npm install
    ```
 
-4. Install Marp CLI globally:
-
-   ```
-   npm install -g @marp-team/marp-cli
-   ```
 
 ## Usage
 
@@ -67,26 +61,32 @@ The script crawls the following sections from the Google Search Console:
 
 ## Output
 
-The script creates a new Markdown file in the `markdown` directory with data from the crawled sections for the specified site. The name of the Markdown file is the cleaned site URL (e.g., `example_com.md`).
+The results of each test are saved in the Markdown format. These Markdown files are then automatically converted to HTML and PDF for easy sharing and reporting.
 
-Additionally, the script takes screenshots of the pages it visits and saves them in the `screenshots` directory.
+### Directory Structure for Outputs:
 
-## Generate Slides
+- **Markdown Outputs**: These are saved in the `./markdown` directory.
+- **HTML and PDF Outputs**: After the Markdown results are generated, they're converted into HTML and PDF formats and saved in the `./results` directory.
 
-After the script has finished, it will provide the command to generate slides from the generated Markdown file using Marp CLI in the console output.
+### Conversion:
 
-You can use these commands to generate either HTML or PDF slides:
+The conversion of Markdown files to HTML and PDF formats is powered by Marp CLI. Our tool employs the `convertMarkdown` utility, which can be found in `./utils/conversion`, to leverage Marp's capabilities and transform Markdown documents seamlessly.
 
-- For HTML slides:
+### Manual Conversion
 
-    ```bash
-    npx @marp-team/marp-cli@latest markdown/<your_markdown_file> --theme-set markdown/theme.css --allow-local-files --html
-    ```
+To manually convert a specific Markdown file to HTML and PDF, use the `--convert` or `-c` option followed by either "latest" (to convert the most recently modified .md file) or the path to a specific Markdown file:
 
-- For PDF slides:
 
-    ```bash
-    npx @marp-team/marp-cli@latest markdown/<your_markdown_file> --theme-set markdown/theme.css --allow-local-files --pdf
-    ```
+Convert the latest Markdown file:
 
-Replace `<your_markdown_file>` with the name of the Markdown file you want to convert into slides. This filename will be displayed in the console output once the crawling script has finished its execution.
+```bash
+node index.js -c latest
+```
+
+Convert a specific Markdown file:
+
+```bash
+node index.js -c path/to/your_markdown_file.md
+```
+
+Replace <path_to_your_markdown_file> with the appropriate path.

@@ -28,6 +28,7 @@ async function captureScreenshot(page, siteUrl, screenshotXPath, screenshotNameP
     } catch (error) {
         console.error(`Failed to capture screenshot. ${error}`);
     }
+    console.log(screenshotPath);
     return { screenshotPath, pageUrl };
 }
 

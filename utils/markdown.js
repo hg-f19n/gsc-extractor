@@ -1,15 +1,29 @@
 const fs = require("fs");
 const path = require("path");
+const { domainNameFromUrl, getCurrentTimestampFormatted } = require('../utils/sanitizers');
 
-module.exports.createNewMarkdownFile = async (cleanSiteUrl) => {
+module.exports.createNewMarkdownFile = async (siteUrl) => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const markdownFilePath = path.join(__dirname, '../markdown', `${cleanSiteUrl}_${timestamp}.md`);
+  const creationDate = getCurrentTimestampFormatted();
+  const siteUrlDomainOnly = domainNameFromUrl(siteUrl);
+  const markdownFilePath = path.join(__dirname, '../markdown', `${siteUrlDomainOnly}_${timestamp}.md`);
+
+  const markdownDir = path.resolve(__dirname, '../markdown');
+  const logoPath = path.join(__dirname, '../assets', 'logo.svg');
+  const relativelogoPath = path.relative(markdownDir, logoPath);
 
   const frontMatter = 
-  
 `---
-theme: custom-theme
+theme: f19n-theme
 paginate: true
+footer: 'Google Search Console Report for ${siteUrl} - Generated: ${creationDate} - Powered by [https://www.fullstackoptimization.com/](https://www.fullstackoptimization.com/)'
+_class: title
+---
+
+# Google Search Console Report
+## ${siteUrl}
+### Generated: ${creationDate}
+
 ---
 
 `;

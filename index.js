@@ -4,11 +4,11 @@ const puppeteer = require('puppeteer');
 const readline = require('readline');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+
 const { sleep } = require('./utils/wait');
-const { cleanUrl } = require('./utils/urls');
 const markdown = require('./utils/markdown');
 const { saveCookies, loadCookies } = require('./utils/cookies');
-const cookiesPath = path.join(__dirname, '..', 'cookies.json');
+const { convertMarkdown } = require('./utils/conversion');
 
 const crawlStats = require('./sections/crawl-stats');
 const links = require('./sections/links');
@@ -25,7 +25,7 @@ function ensureTrailingSlash(url) {
   return url.endsWith('/') ? url : `${url}/`;
 }
 
-const directories = ['screenshots', 'markdown'];
+const directories = ['screenshots', 'markdown', 'results'];
 
 directories.forEach(dir => {
   const dirPath = path.join(__dirname, dir);
@@ -40,7 +40,7 @@ directories.forEach(dir => {
       alias: 'siteUrl',
       describe: 'Site URL for Google Search Console',
       type: 'string',
-      demandOption: true,
+      demandOption: false,
     })
     .option('b', {
       alias: 'brandName',
@@ -48,12 +48,59 @@ directories.forEach(dir => {
       type: 'string',
       demandOption: false,
     })
+    .option('c', {
+      alias: 'convert',
+      describe: 'Provide "latest" to convert the most recent Markdown file or provide the path to a specific Markdown file',
+      type: 'string',
+      demandOption: false,
+    })
     .argv;
+
+  if (!argv.s && !argv.c) {
+    console.error('Either a site URL (-s) or the conversion flag (-c) must be provided.');
+    process.exit(1);
+  }
+
+  if (argv.s && argv.c) {
+    console.error('You can either provide a site URL (-s) for scraping or use the conversion flag (-c) for conversion, but not both.');
+    process.exit(1);
+  }
+
+  // If conversion flag is set, handle it
+  // If conversion flag is set, handle it
+  if (argv.c) {
+    let mdFilePath;
+
+    if (argv.c.toLowerCase() === 'latest') {
+      const markdownFiles = fs.readdirSync(path.join(__dirname, 'markdown')).filter(file => file.endsWith('.md'));
+      const latestFile = markdownFiles.sort((a, b) => fs.statSync(path.join(__dirname, 'markdown', b)).mtime.getTime() - fs.statSync(path.join(__dirname, 'markdown', a)).mtime.getTime())[0];
+
+      if (!latestFile) {
+        console.error('No markdown files found.');
+        process.exit(1);
+      }
+
+      mdFilePath = path.join(__dirname, 'markdown', latestFile);
+    } else {
+      mdFilePath = argv.c;
+    }
+
+    if (fs.existsSync(mdFilePath)) {
+      try {
+        const outputPaths = convertMarkdown(mdFilePath);
+        console.log('Conversion completed. Files saved at:', outputPaths);
+      } catch (error) {
+        console.error('Error during manual conversion:', error);
+      }
+    } else {
+      console.error(`File ${mdFilePath} does not exist.`);
+    }
+
+    process.exit();
+  }
 
   const siteUrl = ensureTrailingSlash(argv.s);
   const brandName = argv.b || "";
-
-  const cleanSiteUrl = cleanUrl(siteUrl);
 
   const browser = await puppeteer.launch({
     headless: false,
@@ -70,22 +117,22 @@ directories.forEach(dir => {
     if (error.message === 'No cookies file found.') {
       console.log('Navigating to Google sign in page.');
       await page.goto('https://accounts.google.com/signin');
-  
+
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
       });
-  
+
       await new Promise((resolve, reject) => {
         rl.question("Please login to your Google account in the browser then press Enter to continue...", function (answer) {
           resolve();
         });
       });
-  
+
       rl.close();
-  
+
       await saveCookies(page);
-  
+
       await sleep(2000);
     } else {
       console.error(`Error loading cookies: ${error}`);
@@ -93,7 +140,7 @@ directories.forEach(dir => {
     }
   }
 
-  const markdownFilePath = await markdown.createNewMarkdownFile(cleanSiteUrl);
+  const markdownFilePath = await markdown.createNewMarkdownFile(siteUrl);
 
   await performance.run(page, siteUrl, markdownFilePath, brandName);
   await news.run(page, siteUrl, markdownFilePath);
@@ -108,11 +155,11 @@ directories.forEach(dir => {
 
   await browser.close();
 
-  let markdownFileName = path.basename(markdownFilePath);
-
-  console.log("\n---- COMMANDS TO GENERATE SLIDES ----");
-  console.log(`HTML: npx @marp-team/marp-cli@latest markdown/${markdownFileName} --theme-set markdown/theme.css --allow-local-files --html`);
-  console.log(`PDF: npx @marp-team/marp-cli@latest markdown/${markdownFileName} --theme-set markdown/theme.css --allow-local-files --html --pdf`);
-
+  try {
+    const outputPaths = await convertMarkdown(markdownFilePath);
+    console.log('Conversion completed. Files saved at:', outputPaths);
+  } catch (error) {
+    console.error('Error during conversion:', error);
+  }
 
 })();
