@@ -6,11 +6,15 @@ module.exports.createNewMarkdownFile = async (siteUrl) => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const creationDate = getCurrentTimestampFormatted();
   const siteUrlDomainOnly = domainNameFromUrl(siteUrl);
-  const markdownFilePath = path.join(__dirname, '../markdown', `${siteUrlDomainOnly}_${timestamp}.md`);
+  //const markdownFilePath = path.join(__dirname, '../markdown', `${siteUrlDomainOnly}_${timestamp}.md`);
+  const markdownFilePath = path.join(process.cwd(), '_gsc-reporter-output', 'markdown', `${siteUrlDomainOnly}_${timestamp}.md`);
 
-  const markdownDir = path.resolve(__dirname, '../markdown');
-  const logoPath = path.join(__dirname, '../assets', 'logo.svg');
-  const relativelogoPath = path.relative(markdownDir, logoPath);
+
+  //const markdownDir = path.resolve(__dirname, '../markdown');
+  const markdownDir = path.resolve(process.cwd(), '_gsc-reporter-output', 'markdown');
+
+  //const logoPath = path.join(__dirname, '../assets', 'logo.svg');
+  //const relativelogoPath = path.relative(markdownDir, logoPath);
 
   const frontMatter = 
 `---
@@ -34,7 +38,8 @@ _class: title
 
 module.exports.generateMarkdownSlide = async (headline, screenshotPath, pageUrl, markdownFilePath) => {
   try {
-    const markdownDir = path.resolve(__dirname, '../markdown');
+    //const markdownDir = path.resolve(__dirname, '../markdown');
+    const markdownDir = path.resolve(process.cwd(), '_gsc-reporter-output', 'markdown');
     const relativeScreenshotPath = path.relative(markdownDir, screenshotPath);
     const markdownSlide = 
     
@@ -59,7 +64,8 @@ module.exports.generateMarkdownSlide = async (headline, screenshotPath, pageUrl,
 
 module.exports.generateMarkdownSlideWithTwoImages = async (headline, subheadline1, subheadline2, screenshotPath1, screenshotPath2, pageUrl1, pageUrl2, markdownFilePath) => {
   try {
-    const markdownDir = path.resolve(__dirname, '../markdown');
+    //const markdownDir = path.resolve(__dirname, '../markdown');
+    const markdownDir = path.resolve(process.cwd(), '_gsc-reporter-output', 'markdown');
     const relativeScreenshotPath1 = path.relative(markdownDir, screenshotPath1);
     const relativeScreenshotPath2 = path.relative(markdownDir, screenshotPath2);
     
