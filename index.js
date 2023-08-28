@@ -66,7 +66,7 @@ directories.forEach(dir => {
     process.exit(1);
   }
 
-  // If conversion flag is set, handle it
+
   // If conversion flag is set, handle it
   if (argv.c) {
     let mdFilePath;
