@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports.screenshot = async (elementOrPage, screenshotName, padding = 5, maxHeight = 1200) => {
   try {
-    const screenshotPath = path.resolve(__dirname, '../screenshots', `${screenshotName}.png`);
+    const screenshotPath = path.resolve(process.cwd(), '_gsc-reporter-output', 'screenshots', `${screenshotName}.png`);
 
     // Check if it's a Page object
     if (elementOrPage.constructor.name === 'Page') {

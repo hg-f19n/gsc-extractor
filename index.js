@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
@@ -25,13 +27,21 @@ function ensureTrailingSlash(url) {
   return url.endsWith('/') ? url : `${url}/`;
 }
 
-const directories = ['screenshots', 'markdown', 'results'];
+const topDirectory = '_gsc-reporter-output';
+const subDirectories = ['screenshots', 'markdown', 'results'];
 
-directories.forEach(dir => {
-  const dirPath = path.join(__dirname, dir);
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath);
-  }
+// Ensure the top directory exists
+const topDirPath = path.join(process.cwd(), topDirectory);
+if (!fs.existsSync(topDirPath)) {
+    fs.mkdirSync(topDirPath);
+}
+
+// Ensure subdirectories exist within the top directory
+subDirectories.forEach(dir => {
+    const dirPath = path.join(topDirPath, dir);
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath);
+    }
 });
 
 (async () => {
@@ -65,6 +75,7 @@ directories.forEach(dir => {
     console.error('You can either provide a site URL (-s) for scraping or use the conversion flag (-c) for conversion, but not both.');
     process.exit(1);
   }
+  
 
 
   // If conversion flag is set, handle it
@@ -72,15 +83,15 @@ directories.forEach(dir => {
     let mdFilePath;
 
     if (argv.c.toLowerCase() === 'latest') {
-      const markdownFiles = fs.readdirSync(path.join(__dirname, 'markdown')).filter(file => file.endsWith('.md'));
-      const latestFile = markdownFiles.sort((a, b) => fs.statSync(path.join(__dirname, 'markdown', b)).mtime.getTime() - fs.statSync(path.join(__dirname, 'markdown', a)).mtime.getTime())[0];
+      const markdownFiles = fs.readdirSync(path.join(process.cwd(), topDirectory, 'markdown')).filter(file => file.endsWith('.md'));
+      const latestFile = markdownFiles.sort((a, b) => fs.statSync(path.join(process.cwd(), topDirectory, 'markdown', b)).mtime.getTime() - fs.statSync(path.join(process.cwd(), topDirectory, 'markdown', a)).mtime.getTime())[0];
 
       if (!latestFile) {
         console.error('No markdown files found.');
         process.exit(1);
       }
 
-      mdFilePath = path.join(__dirname, 'markdown', latestFile);
+      mdFilePath = path.join(process.cwd(), topDirectory, 'markdown', latestFile);
     } else {
       mdFilePath = argv.c;
     }
@@ -142,16 +153,16 @@ directories.forEach(dir => {
 
   const markdownFilePath = await markdown.createNewMarkdownFile(siteUrl);
 
-  await performance.run(page, siteUrl, markdownFilePath, brandName);
+  //await performance.run(page, siteUrl, markdownFilePath, brandName);
   await news.run(page, siteUrl, markdownFilePath);
-  await discover.run(page, siteUrl, markdownFilePath);
+/*   await discover.run(page, siteUrl, markdownFilePath);
   await crawlStats.run(page, siteUrl, markdownFilePath);
   await indexing.run(page, siteUrl, markdownFilePath);
   await experience.run(page, siteUrl, markdownFilePath);
   await enhancements.run(page, siteUrl, markdownFilePath);
   await shopping.run(page, siteUrl, markdownFilePath);
   await securityActions.run(page, siteUrl, markdownFilePath);
-  await links.run(page, siteUrl, markdownFilePath);
+  await links.run(page, siteUrl, markdownFilePath); */
 
   await browser.close();
 

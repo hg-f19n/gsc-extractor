@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const cookiesPath = path.join(__dirname, '..', 'cookies.json');
+const cookiesPath = path.join(process.cwd(), '_gsc-reporter-output', 'cookies.json');
 
 async function saveCookies(page, path = cookiesPath) {
   console.log('Saving cookies to:', path);
