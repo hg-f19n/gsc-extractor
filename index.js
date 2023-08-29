@@ -11,6 +11,7 @@ const { sleep } = require('./utils/wait');
 const markdown = require('./utils/markdown');
 const { saveCookies, loadCookies } = require('./utils/cookies');
 const { convertMarkdown } = require('./utils/conversion');
+const { sendReport } = require('./utils/mailer');
 
 const crawlStats = require('./sections/crawl-stats');
 const links = require('./sections/links');
@@ -169,8 +170,9 @@ subDirectories.forEach(dir => {
   try {
     const outputPaths = await convertMarkdown(markdownFilePath);
     console.log('Conversion completed. Files saved at:', outputPaths);
+    sendReport([outputPaths.pdf], 'holger.guggi@fullstackoptimization.com');
   } catch (error) {
     console.error('Error during conversion:', error);
   }
-
+  
 })();
