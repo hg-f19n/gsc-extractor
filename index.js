@@ -9,7 +9,7 @@ const { hideBin } = require('yargs/helpers');
 
 const { sleep } = require('./utils/wait');
 const markdown = require('./utils/markdown');
-const { saveCookies, loadCookies } = require('./utils/cookies');
+const { saveCookies, loadCookies, isLoggedIn } = require('./utils/cookies');
 const { convertMarkdown } = require('./utils/conversion');
 const { sendReport } = require('./utils/mailer');
 
@@ -125,26 +125,30 @@ subDirectories.forEach(dir => {
 
   try {
     await loadCookies(page);
+    const loggedIn = await isLoggedIn(page);
+    if (!loggedIn) {
+      console.log('Cookies are outdated or invalid.');
+      throw new Error('Cookies are outdated or invalid.');
+    }
   } catch (error) {
-    if (error.message === 'No cookies file found.') {
+    if (error.message === 'No cookies file found.' || error.message === 'Cookies are outdated or invalid.') {
       console.log('Navigating to Google sign in page.');
       await page.goto('https://accounts.google.com/signin');
-
+  
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
       });
-
+  
       await new Promise((resolve, reject) => {
         rl.question("Please login to your Google account in the browser then press Enter to continue...", function (answer) {
           resolve();
         });
       });
-
+  
       rl.close();
-
+  
       await saveCookies(page);
-
       await sleep(2000);
     } else {
       console.error(`Error loading cookies: ${error}`);
@@ -170,7 +174,7 @@ subDirectories.forEach(dir => {
   try {
     const outputPaths = await convertMarkdown(markdownFilePath);
     console.log('Conversion completed. Files saved at:', outputPaths);
-    sendReport([outputPaths.pdf], 'holger.guggi@fullstackoptimization.com');
+    //sendReport([outputPaths.pdf], 'holger.guggi@fullstackoptimization.com');
   } catch (error) {
     console.error('Error during conversion:', error);
   }

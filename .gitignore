@@ -5,6 +5,7 @@ _temp.txt
 cookies.json
 .DS_Store
 .env
+_gsc-reporter-output
 
 # Logs
 logs
