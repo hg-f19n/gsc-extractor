@@ -10,7 +10,7 @@ const path = require('path');
  */
 function convertMarkdown(markdownFilePath) {
   const formats = ['html', 'pdf'];
-  const outputPaths = [];
+  const outputPaths = {};
 
   for (const format of formats) {
     const outputPath = path.join(process.cwd(), '_gsc-reporter-output', 'results', path.basename(markdownFilePath).replace('.md', `.${format}`));
@@ -27,7 +27,7 @@ function convertMarkdown(markdownFilePath) {
       const output = execSync(cmd, { shell: '/bin/zsh', timeout: 60000 });
       console.log(output.toString());
       console.log(`Converted markdown to ${format} successfully!`);
-      outputPaths.push(outputPath);
+      outputPaths[format] = outputPath;
     } catch (error) {
       console.error(`Error converting markdown to ${format}:`, error);
     }

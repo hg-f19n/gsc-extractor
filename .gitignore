@@ -4,6 +4,7 @@ results
 _temp.txt
 cookies.json
 .DS_Store
+.env
 
 # Logs
 logs
