@@ -158,16 +158,16 @@ subDirectories.forEach(dir => {
 
   const markdownFilePath = await markdown.createNewMarkdownFile(siteUrl);
 
-  //await performance.run(page, siteUrl, markdownFilePath, brandName);
+  await performance.run(page, siteUrl, markdownFilePath, brandName);
   await news.run(page, siteUrl, markdownFilePath);
-/*   await discover.run(page, siteUrl, markdownFilePath);
+  await discover.run(page, siteUrl, markdownFilePath);
   await crawlStats.run(page, siteUrl, markdownFilePath);
   await indexing.run(page, siteUrl, markdownFilePath);
   await experience.run(page, siteUrl, markdownFilePath);
   await enhancements.run(page, siteUrl, markdownFilePath);
   await shopping.run(page, siteUrl, markdownFilePath);
   await securityActions.run(page, siteUrl, markdownFilePath);
-  await links.run(page, siteUrl, markdownFilePath); */
+  await links.run(page, siteUrl, markdownFilePath);
 
   await browser.close();
 

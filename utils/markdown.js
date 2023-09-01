@@ -46,8 +46,18 @@ module.exports.generateMarkdownSlide = async (headline, screenshotPath, pageUrl,
 
 # ${headline}
 
-![w:auto h:auto](${relativeScreenshotPath})
-[${pageUrl}](${pageUrl})
+:::: slideInner
+
+:::col
+![screenshot](${relativeScreenshotPath})
+:::
+
+:::col
+:::
+
+::::
+
+[Link to Google Search Console](${pageUrl})
 
 ---
 
@@ -73,18 +83,21 @@ module.exports.generateMarkdownSlideWithTwoImages = async (headline, subheadline
 
 # ${headline}
 
-<div style="display: flex; justify-content: space-between;">
-    <div style="width: 49%;">
-      <h2>${subheadline1}</h2>
-      <img src="${relativeScreenshotPath1}"/>
-      <a href="${pageUrl1}">${pageUrl1}</a>
-    </div>
-    <div style="width: 49%;">
-      <h2>${subheadline2}</h2>
-      <img src="${relativeScreenshotPath2}"/>
-      <a href="${pageUrl2}">${pageUrl2}</a>
-    </div>
-</div>
+:::: slideInner
+
+:::col
+## ${subheadline1}
+![screenshot](${relativeScreenshotPath1})
+[Link to Google Search Console](${pageUrl1})
+:::
+
+:::col
+## ${subheadline2}
+![screenshot](${relativeScreenshotPath2})
+[Link to Google Search Console](${pageUrl2})
+:::
+
+::::
 
 ---
 
